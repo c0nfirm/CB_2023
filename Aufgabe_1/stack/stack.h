@@ -7,6 +7,9 @@
  */
 typedef struct {
     /* hier sollte noch etwas dazu kommen */
+
+    int *top;
+    int *items;
 } IntStack;
 
 /* *** öffentliche Schnittstelle ******************************************** */

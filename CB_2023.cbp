@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="CB_2023" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/CB_2023" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/CB_2023" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="Aufgabe_1/.gitignore" />
+		<Unit filename="Aufgabe_1/Makefile" />
+		<Unit filename="Aufgabe_1/stack/Makefile" />
+		<Unit filename="Aufgabe_1/stack/stack.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Aufgabe_1/stack/stack.h" />
+		<Unit filename="Aufgabe_1/stack/teststack.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Aufgabe_1/syntree/Makefile" />
+		<Unit filename="Aufgabe_1/syntree/syntree.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Aufgabe_1/syntree/syntree.h" />
+		<Unit filename="Aufgabe_1/syntree/testsyntree.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Aufgabe_2/Makefile" />
+		<Unit filename="Aufgabe_2/c1-scanner/Makefile" />
+		<Unit filename="Aufgabe_2/c1-scanner/demorgan.c1" />
+		<Unit filename="Aufgabe_2/c1-scanner/demorgan.sol" />
+		<Unit filename="Aufgabe_2/c1-scanner/minako.h" />
+		<Unit filename="Aufgabe_2/c1-scanner/testscanner.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Aufgabe_2/urlscanner/Makefile" />
+		<Unit filename="Aufgabe_2/urlscanner/testeingabe.html" />
+		<Unit filename="Aufgabe_2/urlscanner/testeingabe.sol" />
+		<Unit filename="Aufgabe_2/urlscanner/testurlscanner.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Aufgabe_2/urlscanner/urlscanner.h" />
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>

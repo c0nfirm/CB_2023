@@ -1,6 +1,6 @@
-# Übungsblatt 1
+# Übungsblatt 2
 ## Generelles
-Die ersten beiden Aufgaben dienen zur Vertiefung Ihrer praktischen Erfahrungen in C. Sie implementieren einen Stack und eine Baumstruktur, die wir später in abgewandelter Form bei der internen Repräsentation des eingelesenen Quelltextes sowie bei der Ausführung durch den Interpreter benötigen.
+Diese beiden Aufgaben dienen der Vertiefung Ihrer Erfahrungen mit dem Metawerkzeug flex. Sie implementieren die lexikalische Analyse für unseren Praktikumsinterpreter der Sprache C1. In der nächsten Aufgabe benötigen Sie diese Komponente, um Token für den Parser bereitzustellen.
 
 ## Allgemeine Hinweise
 Für diese und alle folgenden Praktikumsaufgaben gilt, dass Einsendungen, die in der jeweils mitgegebenen Testumgebung nicht laufen, mit null Punkten bewertet werden! Das beinhaltet insbesondere alle Programme, die sich nicht fehlerfrei kompilieren lassen. Als Testsystem werden wir dabei gruenau6 mit den dort installierten Compilern und Compilerwerkzeugen benutzen. Prüfen Sie bitte rechtzeitig vor der Abgabe, ob ihr Programm auch dort lauffähig ist. Wir akzeptieren keine Entschuldigungen der Form „aber bei mir Zuhause hat es funktioniert“ ;).
@@ -17,91 +17,51 @@ Ebenfalls mit null Punkten werden alle Abgaben bewertet, die sich nicht exakt an
 > Bitte achten Sie bei Ihrer Implementation auf Speicherleckfreiheit bei korrekter Benutzung, d.h. bei paarweisem Aufruf von init() und release().
 
 ## Abgabemodus
-Die Lösung ist in einem Git-Repository abzugeben. 
+Die Quell- und Headerdateien sind in einem Git-Repository abzugeben.  
 
-Zur Lösung der Aufgaben steht für Sie dieses Repository mit 
-- vorgegebenen Header-Dateien stack.h und syntree.h, 
-- den beiden Test-Dateien teststack.c und testsyntree.c 
-- sowie Makefiles 
+Zur Lösung der Aufgaben steht für Sie dieses Repository mit  
+- ein Unterverzeichnis c1-scanner für Aufgabe 1 mit 
+  - einem vorgegebenen Makefile, 
+  - einem Testprogramm testscanner.c und einer Header-Datei minako.h 
+  - sowie einer Testeingabe demorgan.c1 und der erwarteten Testausgabe demorgan.sol 
+- die Dateien im Unterverzeichnis urlscanner für Aufgabe 2
+- der [Foliensatz](uebung2.pdf) vom letzten Jahr mit einer kurzen Einführung in reguläre Ausdrücke und flex 
 
 zur Verfügung.
 
-## Aufgabe 1 (30 Punkte)
+Noch ein Hinweis zu den Compilerwarnungen: Nach wir vor gilt, dass wir für Warnungen bei der Übersetzung Punkte abziehen, es kann allerdings passieren, dass sich Warnungen im von flex generierten Quelltext nicht auf einfache Weise vermeiden lassen. Diese Warnungen tolerieren wir.
+
+## Aufgabe 1 (50 Punkte)
 ### Kurzbeschreibung
-Implementieren Sie einen Stack, der beliebig viele Integerzahlen speichern kann ("beliebig viel" bedeutet für uns: lediglich begrenzt durch den Arbeitsspeicher). Erweitern Sie dabei eine vorgegebene Schnittstelle, so dass Ihr Stack in andere (bereits existierende) Programme eingebunden werden kann.
+Implementieren Sie mit Hilfe von flex einen Scanner, der in einem Eingabestrom bzw. in einer Eingabedatei die Token der Sprache C1 erkennt.
 
 ### Aufgabenstellung
-Wie Sie in der gegebenen Headerdatei stack.h sehen können, betrachten wir einen Stack als eine Datenstruktur, auf der folgende Operationen ausgeführt werden können:
+Mittels flex sollen sie einen Scanner implementieren, der aus einem Eingabestrom die Token der Sprache C1 extrahiert.
 
-```c
-// Initialisiert einen neuen Stack und liefert den Rückgabewert 0, 
-// falls keine Fehler bei der Initialisierung aufgetreten sind und andernfalls einen Fehlercode.
-int stackInit(IntStack *self)
+Die Lexik der Sprache C1 befindet sich [hier](https://amor.cms.hu-berlin.de/~kunert/lehre/material/c1-lexic.php). Zusätzlich sind folgende Punkte zu beachten:
 
-// Gibt den Stack und alle assoziierten Strukturen frei.
-void stackRelease(IntStack *self)
+- wenn man den Scanner ohne Kommandozeilenparameter aufruft, soll er von stdin lesen, ansonsten aus der auf der Kommandozeile angegebenen Datei (dabei sollen eventuell auftauchende Dateizugriffsfehler abgefangen werden)
+- die Implementation befindet sich in der Datei minako-lexic.l
+- Whitespaces (Leerzeichen, Tabulatoren, Zeilenenden) sollen vom Scanner ignoriert werden
+- C- (/* */) und C++- (//) Kommentare sollen überlesen werden
+- es sind nur die in der Headerdatei minako.h definierten Token (z.B.: "==") als Konstanten (im Bsp.: EQ) zurückzugeben; bei allen nicht in minako.h erwähnten Zeichen (die aber laut Lexikbeschreibung zur Lexik von C1 gehören, z.B.: "+"), soll einfach der ASCII-Code des Zeichens zurückgegeben werden
+- alle nicht in C1 erlaubten Zeichen (etwa "&") sollen zu einem lexikalischen Fehler führen (also zu einer sinnvollen Fehlerausgabe gefolgt vom Programmabbruch)
+- wenn Sie den Scanner auf das mitgelieferte C1-Beispielprogramm demorgan.c1 ansetzen, sollte genau die in demorgan.sol stehende Ausgabe erfolgen
 
-// Legt den Wert von i auf den Stack.
-void stackPush(IntStack *self, int i)
 
-// Gibt das oberste Element des Stacks zurück.
-int stackTop(const IntStack *self)
-
-// Entfernt und liefert das oberste Element des Stacks.
-int stackPop(IntStack *self)
-
-// Gibt zurück, ob ein Stack leer ist, d.h. kein Element enthält (Rückgabewert != 0, wenn leer; == 0, wenn nicht). 
-int stackIsEmpty(const IntStack *self)
-```
-
-- Implementieren Sie den Stack in der Datei stack.c und erweitern Sie die Schnittstelle stack.h, so dass ein externes Programm nur die Headerdatei einbinden muss, um mit Ihren Stacks arbeiten zu können.
-
-- Sollte beim Aufruf einer der Methoden ein Fehler auftauchen, so soll eine sinnvolle Fehlerausgabe nach stderr und der Abbruch des Programms mit Exitcode != 0 erfolgen.
-
-- Zusätzlich stellen wir Ihnen ein Makefile und ein Testprogramm in der Datei teststack.c zur Verfügung. Ihre Lösung befindet sich auf dem richtigen Weg, wenn dieses Testprogramm (ohne Änderungen an den beiden letztgenannten Dateien) erfolgreich kompiliert und durchläuft. Bitte beachten Sie jedoch, dass die Testumgebung bei weitem nicht alle interessanten Testfälle abdeckt.
-
-- Hinweis: Sie werden feststellen, dass in der Datei stack.h eine Funktion namens void `stackPrint(const IntStack *self)` deklariert wurde. Es steht Ihnen frei diese Funktion zu Testzwecken zu implementieren.
-
-## Aufgabe 2 (70 Punkte)
+## Aufgabe 2 (50 Punkte)
 ### Kurzbeschreibung
-Implementieren Sie eine Datenstruktur, die beliebig verzweigte Bäume speichern kann, mit den im Folgenden beschriebenen Methoden.
+Implementieren Sie mit Hilfe von flex einen Scanner, der in einem Eingabestrom bzw. aus einer Eingabedatei URLs und damit verbundene Linkbeschreibungen extrahiert.
 
 ### Aufgabenstellung
-Die hier von Ihnen zu implementierende Datenstruktur werden Sie bei der Konstruktion des abstrakten Syntaxbaumes benötigen, da uns die Bordmittel von C keine wirkliche Hilfe leisten.
+Der zweite zu implementierende Scanner soll mittels flex aus einem Eingabestrom im xhtml-Format die URLs und die Linktexte extrahieren und ausgeben.
 
-- Die zu implementierende Datenstruktur Syntree soll Baumknoten in beliebig komplexen Konfigurationen speichern können und davon beliebig viele. 
-- Beschreiben Sie die Implementation Ihrer Datenstruktur kurz in einem Programmkommentar am Anfang der Headerdatei.
-- Implementieren Sie dann die folgenden Operationen:
+Zur Vereinfachung der Analyse gelten folgende Konventionen:
 
-```c
-// Initialisiert einen neuen Syntaxbaum und liefert den Rückgabewert 0, falls keine Fehler bei der 
-// Initialisierung aufgetreten sind und andernfalls einen Fehlercode.
-int syntreeInit(Syntree *self)
+- der Eingabestrom ist valides xhtml, das keinen CDATA Abschnitt enthält. Die Links haben das Format <a ... href="URL" ... >LINKTEXT</a>, wobei im schließenden Tag nach dem 'a' null oder mehr Leerzeichen und Newlines stehen dürfen. Innerhalb des öffnenden Tags dürfen vor und nach href weitere Attribute auftreten, die überlesen werden
+- Newlines innerhalb von LINKTEXT gehören zum Linktext. D.h. alles innerhalb des a-Tags gehört zum Linktext
+- zwischen <a ...> und <\/a> treten keine anderen Tags auf
+- a-Tags, die kein href-Attribut beinhalten, werden komplett ignoriert
+- die Eingabe enthält keinerlei Kommentare
 
-// Gibt den Syntaxbaum und alle damit assoziierten Strukturen frei.
-void syntreeRelease(Syntree *self)
-
-// Erstellt einen neuen Knoten mit einem Zahlenwert als Inhalt und gibt dessen ID zurück; 
-// der ID-Typ ist durch Sie Ihrer Implementation entsprechend festzulegen.
-SyntreeNodeID syntreeNodeNumber(Syntree *self, int number)
-
-// Kapselt einen Knoten innerhalb eines anderen Knotens und gibt dessen ID zurück.
-SyntreeNodeID syntreeNodeTag(Syntree *self, SyntreeNodeID id)
-
-// Kapselt ein Knotenpaar innerhalb eines Knotens und gibt dessen ID zurück.
-SyntreeNodeID syntreeNodePair(Syntree *self, SyntreeNodeID id1, SyntreeNodeID id2)
-
-// Hängt einen Knoten an das Ende eines Listenknotens und gibt dessen ID zurück.
-SyntreeNodeID syntreeNodeAppend(Syntree *self, SyntreeNodeID list, SyntreeNodeID elem)
-
-// Hängt einen Knoten an den Anfang eines Listenknotens und gibt dessen ID zurück.
-SyntreeNodeID syntreeNodePrepend(Syntree *self, SyntreeNodeID elem, SyntreeNodeID list)
-
-// Gibt alle Zahlenknoten zwischen runden und alle zusammengesetzten Knoten zwischen 
-// geschweiften Klammern rekursiv (depth-first) auf der Standardausgabe aus.
-void syntreePrint(const Syntree *self, SyntreeNodeID root)
-```
-
-- Hinweis: es ist erlaubt bei der Ausgabe beliebig viele Leerzeichen und Zeilenenden zu verwenden; wir werden alle Zeichen aus der Ausgabe entfernen, für die isspace() wahr ist.
-- Sollte beim Aufruf einer der Methoden ein Fehler auftauchen, so soll eine sinnvolle Fehlerausgabe nach stderr und der Abbruch des Programms mit Exitcode != 0 erfolgen.
-- Führen Sie die Implementation in der Datei syntree.c durch. Zur Selbstüberprüfung stellen wir Ihnen auch hier ein Beispielprogramm und ein Makefile zur Verfügung.
+Bitte vergleichen Sie Ihre Ausgabe bei Eingabe der Datei testeingabe.html mit der erwarteten Ausgabe in testeingabe.sol.

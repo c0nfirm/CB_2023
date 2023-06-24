@@ -12,8 +12,7 @@ FLOAT      {INTEGER}"."{INTEGER}|"."{INTEGER}
 
 %{
 	#include <stdlib.h>
-	#include "minako.h"
-	yystype yylval;
+	#include "minako-syntax.tab.h"
 %}
 
 %%
@@ -62,8 +61,13 @@ FLOAT      {INTEGER}"."{INTEGER}|"."{INTEGER}
 	strcpy(yylval.string, yytext);
 	return ID;
 }
+\"[^\n\"]*\" {
+	yylval.string = malloc(yyleng - 2 + 1);
+	memcpy(yylval.string, yytext + 1, yyleng - 2);
+	yylval.string[yyleng - 2] = 0;
+	return CONST_STRING;
+}
 
 .             return yytext[0];
-<<EOF>>       return EOF;
 
 %%
